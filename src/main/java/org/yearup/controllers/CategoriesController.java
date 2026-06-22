@@ -14,10 +14,16 @@ import java.util.List;
 // add the annotation to make this controller the endpoint for the following url
 // http://localhost:8080/categories
 // add annotation to allow cross site origin requests
+@RestController
+@RequestMapping("/categories")
 public class CategoriesController {
     private CategoryService categoryService;
     private ProductService productService;
 
+    public CategoriesController(CategoryService categoryService, ProductService productService) {
+        this.categoryService = categoryService;
+        this.productService = productService;
+    }
 
     // create an Autowired constructor to inject the categoryService and productService
 
