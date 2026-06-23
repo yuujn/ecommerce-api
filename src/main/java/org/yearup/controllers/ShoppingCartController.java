@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.yearup.exception.NotFoundException;
+import org.yearup.models.CartItem;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.User;
 import org.yearup.security.SecurityUtils;
@@ -57,10 +58,16 @@ public class ShoppingCartController {
         return getCart(principal);
     }
 
-
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15  (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated; return the cart (200 OK)
+    @PutMapping("/products/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    ShoppingCart updateProductInCart(Principal principal, @PathVariable int productId, @RequestBody CartItem item) {
+        User user = getUser(principal);
+        shoppingCartService.updateCartItemQuantity(user.getId(), productId, item.getQuantity());
+        return getCart(principal);
+    }
 
 
     // add a DELETE method to clear all products from the current users cart

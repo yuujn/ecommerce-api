@@ -54,4 +54,10 @@ public class ShoppingCartService
             shoppingCartRepository.save(created);
         }
     }
+
+    public void updateCartItemQuantity(int userId, int productId, int quantity) {
+        CartItem found = shoppingCartRepository.findByUserIdAndProductId(userId, productId);
+        found.setQuantity(quantity);
+        shoppingCartRepository.save(found);
+    }
 }
