@@ -1,9 +1,7 @@
 package org.yearup.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.yearup.exception.NotFoundException;
 import org.yearup.models.Profile;
 import org.yearup.models.User;
@@ -29,5 +27,12 @@ public class ProfileController {
         User user = userService.getLoggedInUser(principal);
         return profileService.getProfileByUserId(user.getId())
                 .orElseThrow(NotFoundException::new);
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Profile updateProfile(Principal principal, @RequestBody Profile data) {
+        User user = userService.getLoggedInUser(principal);
+        return profileService.updateProfileByUserId(user.getId(), data);
     }
 }
