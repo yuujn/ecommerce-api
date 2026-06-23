@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.yearup.models.User;
 import org.yearup.repository.UserRepository;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -48,5 +49,13 @@ public class UserService
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
+    }
+
+    /** Get the currently logged in user. */
+    public User getLoggedInUser(Principal principal) {
+        // get the currently logged in username
+        String userName = principal.getName();
+        // find database user by username
+        return getByUserName(userName);
     }
 }

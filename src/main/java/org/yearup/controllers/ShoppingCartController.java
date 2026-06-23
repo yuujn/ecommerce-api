@@ -2,20 +2,15 @@ package org.yearup.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.yearup.exception.NotFoundException;
 import org.yearup.models.CartItem;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.User;
-import org.yearup.security.SecurityUtils;
 import org.yearup.service.ShoppingCartService;
 import org.yearup.service.UserService;
 
 import java.security.Principal;
-import java.util.Optional;
 
 // convert this class to a REST controller
 // only logged in users should have access to these actions
@@ -31,22 +26,13 @@ public class ShoppingCartController {
         this.userService = userService;
     }
 
-    /** Get the currently logged in user. */
-    private User getUser(Principal principal) {
-        // get the currently logged in username
-        String userName = principal.getName();
-        // find database user by username
-        User user = userService.getByUserName(userName);
-        return user;
-    }
-
     // each method in this controller requires a Principal object as a parameter
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ShoppingCart getCart(Principal principal)
     {
         // use the shoppingCartService to get all items in the cart and return the cart
-        return shoppingCartService.getByUserId(getUser(principal).getId());
+        return shoppingCartService.getByUserId(userService.getLoggedInUser(principal).getId());
     }
 
     // add a POST method to add a product to the cart - the url should be
@@ -55,7 +41,7 @@ public class ShoppingCartController {
     @PostMapping("/products/{productId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     ResponseEntity<ShoppingCart> addProductToCart(Principal principal, @PathVariable int productId) {
-        User user = getUser(principal);
+        User user = userService.getLoggedInUser(principal);
         shoppingCartService.addCartItem(user.getId(), productId);
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -73,7 +59,7 @@ public class ShoppingCartController {
     @PutMapping("/products/{productId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     ShoppingCart updateProductInCart(Principal principal, @PathVariable int productId, @RequestBody CartItem item) {
-        User user = getUser(principal);
+        User user = userService.getLoggedInUser(principal);
         shoppingCartService.updateCartItemQuantity(user.getId(), productId, item.getQuantity());
         return getCart(principal);
     }
@@ -84,7 +70,7 @@ public class ShoppingCartController {
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     void deleteCart(Principal principal) {
-        User user = getUser(principal);
+        User user = userService.getLoggedInUser(principal);
         shoppingCartService.deleteCart(user.getId());
     }
 }
