@@ -1,9 +1,11 @@
 package org.yearup.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.yearup.exception.NotFoundException;
 import org.yearup.models.CartItem;
 import org.yearup.models.ShoppingCart;
@@ -52,11 +54,18 @@ public class ShoppingCartController {
     // return the updated cart with status 201 Created
     @PostMapping("/products/{productId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    ShoppingCart addProductToCart(Principal principal, @PathVariable int productId) {
+    ResponseEntity<ShoppingCart> addProductToCart(Principal principal, @PathVariable int productId) {
         User user = getUser(principal);
         shoppingCartService.addCartItem(user.getId(), productId);
-        return getCart(principal);
+        return ResponseEntity.created(
+                ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/products/{productId}")
+                        .buildAndExpand(productId)
+                        .toUri()
+        ).body(getCart(principal));
     }
+
+    // TODO: we should have a GET for /products/{id}
 
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15  (15 is the productId to be updated)
