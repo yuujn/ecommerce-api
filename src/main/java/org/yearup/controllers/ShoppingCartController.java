@@ -1,38 +1,61 @@
 package org.yearup.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import org.yearup.exception.NotFoundException;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.User;
+import org.yearup.security.SecurityUtils;
 import org.yearup.service.ShoppingCartService;
 import org.yearup.service.UserService;
 
 import java.security.Principal;
+import java.util.Optional;
 
 // convert this class to a REST controller
 // only logged in users should have access to these actions
-public class ShoppingCartController
-{
+@RestController
+@RequestMapping("/cart")
+public class ShoppingCartController {
     // a shopping cart controller depends on the service layer
     private ShoppingCartService shoppingCartService;
     private UserService userService;
 
+    public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService) {
+        this.shoppingCartService = shoppingCartService;
+        this.userService = userService;
+    }
 
-
-    // each method in this controller requires a Principal object as a parameter
-    public ShoppingCart getCart(Principal principal)
-    {
+    /** Get the currently logged in user. */
+    private User getUser(Principal principal) {
         // get the currently logged in username
         String userName = principal.getName();
         // find database user by username
         User user = userService.getByUserName(userName);
-        int userId = user.getId();
+        return user;
+    }
 
+    // each method in this controller requires a Principal object as a parameter
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ShoppingCart getCart(Principal principal)
+    {
         // use the shoppingCartService to get all items in the cart and return the cart
-        return null;
+        return shoppingCartService.getByUserId(getUser(principal).getId());
     }
 
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15  (15 is the productId to be added)
     // return the updated cart with status 201 Created
+    @PostMapping("/products/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    ShoppingCart addProductToCart(Principal principal, @PathVariable int productId) {
+        User user = getUser(principal);
+        shoppingCartService.addCartItem(user.getId(), productId);
+        return getCart(principal);
+    }
 
 
     // add a PUT method to update an existing product in the cart - the url should be
