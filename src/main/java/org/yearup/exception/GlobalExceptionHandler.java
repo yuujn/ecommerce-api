@@ -13,4 +13,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException ignored) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of());
     }
+    @ExceptionHandler(EmptyCheckoutException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(EmptyCheckoutException ignored) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of());
+    }
 }
