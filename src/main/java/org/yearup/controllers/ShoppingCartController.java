@@ -11,6 +11,7 @@ import org.yearup.service.ShoppingCartService;
 import org.yearup.service.UserService;
 
 import java.security.Principal;
+import java.util.Map;
 
 // convert this class to a REST controller
 // only logged in users should have access to these actions
@@ -30,8 +31,7 @@ public class ShoppingCartController {
     // each method in this controller requires a Principal object as a parameter
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ShoppingCart getCart(Principal principal)
-    {
+    public ShoppingCart getCart(Principal principal) {
         // use the shoppingCartService to get all items in the cart and return the cart
         return shoppingCartService.getByUserId(userService.getLoggedInUser(principal).getId());
     }
@@ -70,8 +70,9 @@ public class ShoppingCartController {
     // https://localhost:8080/cart  - return the (now empty) cart so the front end can refresh it (200 OK)
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    void deleteCart(Principal principal) {
+    ResponseEntity<ShoppingCart> deleteCart(Principal principal) {
         User user = userService.getLoggedInUser(principal);
         shoppingCartService.deleteCart(user.getId());
+        return ResponseEntity.ok(shoppingCartService.getByUserId(user.getId()));
     }
 }
