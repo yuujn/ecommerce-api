@@ -12,6 +12,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/profile")
+@CrossOrigin
 public class ProfileController {
     private final ProfileService profileService;
     private final UserService userService;
