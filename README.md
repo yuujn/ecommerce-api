@@ -27,3 +27,9 @@ body in the success case, the Web frontend expects there to be one.
 
 Specifically, the Web frontend expects us to return the up-to-date state of the cart
 in our response to the `DELETE` request, so it can immediately turn around and re-render the page using it.
+
+## The Database
+
+Pictured below is an ERD for the database used in this project.
+
+![ERD.png](images/ERD.png)
